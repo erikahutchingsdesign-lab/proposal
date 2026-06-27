@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Lato', system-ui, sans-serif;
+    background: #F1E9D9;
+    color: #2B251C;
+    -webkit-font-smoothing: antialiased;
+  }
+  @keyframes hcFade { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes hcRise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes hcPop { from { opacity: 0; transform: translateY(16px) scale(.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+  @keyframes hcShake { 10%,90%{transform:translateX(-1px)} 20%,80%{transform:translateX(2px)} 30%,50%,70%{transform:translateX(-4px)} 40%,60%{transform:translateX(4px)} }
+  @keyframes hcRingPulse { 0%{transform:scale(1);opacity:.55} 70%{transform:scale(1.5);opacity:0} 100%{opacity:0} }
+  input::placeholder { color: #B0A88E; }
+</style>
+</helmet>
+
+<!--
+  ============================================================================
+  PROPRIETARY & CONFIDENTIAL — NOTICE OF OWNERSHIP
+  This platform is a preliminary proof-of-concept demonstration, independently
+  developed and funded by me using my own accounts and resources. It remains my intellectual
+  property during this demo phase, pending a mutual agreement on the path
+  forward with Havener. Shared in confidence — please do not distribute.
+  ============================================================================
+-->
+<div style="position: relative; min-height: 100vh; display: flex; flex-direction: column; overflow: hidden; background: radial-gradient(1000px 560px at 50% -6%, #FCF8F0, rgba(252,248,240,0) 64%), radial-gradient(760px 460px at 88% 116%, rgba(168,130,46,0.10), rgba(168,130,46,0) 60%), #F1E9D9;">
+
+  <div style="position: absolute; top: -130px; left: -90px; width: 360px; height: 360px; border-radius: 50%; background: radial-gradient(circle, rgba(168,130,46,0.16), rgba(168,130,46,0) 70%); filter: blur(10px); pointer-events: none;"></div>
+  <div style="position: absolute; bottom: -150px; right: 6%; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(168,130,46,0.10), rgba(168,130,46,0) 70%); filter: blur(8px); pointer-events: none;"></div>
+
+  <!-- top bar -->
+  <header style="position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 22px 46px 18px;">
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <img src="brand/logo.png" alt="Havener Sales & Marketing" style="height: 42px; width: auto; display: block;">
+    </div>
+    <sc-if value="{{ unlocked }}" hint-placeholder-val="{{ false }}">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="display: flex; align-items: center; gap: 9px; padding: 8px 14px; border-radius: 999px; background: #E6F5EB; border: 1px solid rgba(52,160,94,0.35);">
+          <span style="width: 8px; height: 8px; border-radius: 50%; background: #2E9E5B;"></span>
+          <span style="font-size: 13px; font-weight: 700; color: #1E7A45; letter-spacing: 0.2px;">{{ sessionEmail }}</span>
+        </div>
+        <button onClick="{{ signOut }}" style="appearance: none; cursor: pointer; font-family: 'Oswald', sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 1.6px; text-transform: uppercase; color: #8A8068; background: none; border: none; padding: 6px;" style-hover="color: #A8822E;">Sign out</button>
+      </div>
+    </sc-if>
+  </header>
+
+  <!-- proprietary / IP notice -->
+  <div style="position: relative; z-index: 2; display: flex; justify-content: center; padding: 0 46px 10px;">
+    <div style="display: flex; align-items: flex-start; gap: 11px; max-width: 940px; width: 100%; padding: 11px 16px; border-radius: 12px; background: rgba(168,130,46,0.08); border: 1px solid rgba(168,130,46,0.24);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px;"><path d="M12 3 L20 6 V11 C20 16 16.5 19.5 12 21 C7.5 19.5 4 16 4 11 V6 Z"></path><path d="M9 12 L11 14 L15 10"></path></svg>
+      <span style="font-size: 12px; font-weight: 500; line-height: 1.5; color: #6E551C;"><strong style="font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; font-size: 10.5px; color: #8A6A22;">Proprietary &amp; Confidential — </strong>This platform is a preliminary proof-of-concept demonstration, independently developed and funded by me using my own accounts and resources. It remains my intellectual property during this demo phase, pending a mutual agreement on the path forward with Havener. Shared in confidence — please do not distribute.</span>
+    </div>
+  </div>
+
+  <!-- ===================== LOCKED / GATE ===================== -->
+  <sc-if value="{{ locked }}" hint-placeholder-val="{{ true }}">
+    <main style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 28px 70px;">
+      <div style="width: min(480px, 94vw); text-align: center; animation: hcRise .5s ease both;">
+
+        <div style="display: inline-flex; align-items: center; justify-content: center; width: 70px; height: 70px; border-radius: 22px; background: #FFFFFF; border: 1px solid rgba(43,37,28,0.07); box-shadow: 0 16px 30px -16px rgba(120,95,40,0.4), 0 2px 5px rgba(120,95,40,0.05); margin-bottom: 26px;">
+          <svg width="34" height="34" viewBox="0 0 64 64" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="14" y="28" width="36" height="28" rx="5"></rect>
+            <path d="M22 28 V20 a10 10 0 0 1 20 0 V28"></path>
+            <circle cx="32" cy="41" r="3.4" fill="#A8822E" stroke="none"></circle>
+            <line x1="32" y1="44" x2="32" y2="49"></line>
+          </svg>
+        </div>
+
+        <div style="font-family: 'Oswald', sans-serif; font-size: 12.5px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #A8822E;">Private Preview</div>
+        <h1 style="font-family: 'Playfair Display', serif; font-weight: 400; font-size: clamp(30px, 4.6vw, 44px); margin: 12px 0 0; color: #261F16; letter-spacing: -0.3px;">{{ projectName }}</h1>
+        <p style="margin: 16px 0 0; font-size: 16.5px; font-weight: 500; line-height: 1.5; color: #7A7058;">{{ gateBlurb }}</p>
+
+        <form onSubmit="{{ submit }}" style="margin-top: 34px; display: flex; flex-direction: column; gap: 12px; text-align: left;">
+          <label style="font-family: 'Oswald', sans-serif; font-size: 11.5px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #6B6452;">Work email</label>
+          <div style="display: flex; gap: 10px;">
+            <input
+              type="email"
+              value="{{ email }}"
+              onInput="{{ onEmail }}"
+              placeholder="you@company.com"
+              autoComplete="email"
+              autoFocus="{{ true }}"
+              style="flex: 1; min-width: 0; font-family: 'Lato', sans-serif; font-size: 16px; font-weight: 500; color: #2B251C; padding: 15px 17px; border-radius: 14px; background: #FFFFFF; border: 1.5px solid {{ inputBorder }}; outline: none; transition: border-color .18s ease, box-shadow .18s ease;"
+              style-focus="border-color: #A8822E; box-shadow: 0 0 0 4px rgba(168,130,46,0.13);"
+            >
+            <button type="submit" style="appearance: none; cursor: pointer; flex: none; font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase; color: #FFF7E8; padding: 0 24px; border-radius: 14px; border: none; background: linear-gradient(150deg, #C2A24E, #8A6A22); box-shadow: 0 12px 24px -12px rgba(120,90,30,0.7);" style-hover="background: linear-gradient(150deg, #CBAC56, #95731F);">Enter</button>
+          </div>
+
+          <!-- denied message -->
+          <sc-if value="{{ denied }}" hint-placeholder-val="{{ false }}">
+            <div style="display: flex; gap: 12px; align-items: flex-start; margin-top: 4px; padding: 15px 16px; border-radius: 14px; background: #FBEFE6; border: 1px solid rgba(176,98,42,0.28); animation: hcShake .5s ease both;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#B0622A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 1px;">
+                <circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="13"></line><circle cx="12" cy="16.5" r="0.6" fill="#B0622A" stroke="none"></circle>
+              </svg>
+              <div style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #8A4B22;">{{ deniedMsg }} <a href="{{ requestHref }}" style="color: #A8822E; font-weight: 700; text-decoration: none; border-bottom: 1.5px solid rgba(168,130,46,0.4);">Request access →</a></div>
+            </div>
+          </sc-if>
+        </form>
+
+        <p style="margin: 22px 0 0; font-size: 12.5px; font-weight: 500; color: #A79E88; line-height: 1.5;">Access is limited to invited reviewers. Your email is only used to confirm access.</p>
+      </div>
+    </main>
+  </sc-if>
+
+  <!-- ===================== UNLOCKED / CONTENT ===================== -->
+  <sc-if value="{{ unlocked }}" hint-placeholder-val="{{ false }}">
+    <main style="position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 14px 32px 72px; animation: hcFade .45s ease both;">
+      <div style="width: 100%; max-width: 940px;">
+
+        <!-- title block -->
+        <div style="text-align: center; margin-bottom: 38px; animation: hcRise .5s ease both;">
+          <div style="font-family: 'Oswald', sans-serif; font-size: 12.5px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #A8822E;">Proof of Concept Demo</div>
+          <h1 style="font-family: 'Playfair Display', serif; font-weight: 400; font-size: clamp(32px, 5vw, 50px); margin: 12px 0 0; color: #261F16; letter-spacing: -0.4px;">{{ projectName }}</h1>
+          <div style="height: 4px; width: 54px; border-radius: 4px; margin: 20px auto 0; background: linear-gradient(90deg, #C2A24E, #8A6A22);"></div>
+        </div>
+
+        <!-- top row: video + get to the point -->
+        <div style="display: grid; grid-template-columns: 1.55fr 1fr; gap: 26px; align-items: stretch; animation: hcRise .55s ease both;">
+
+        <!-- video -->
+        <div style="position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 22px; overflow: hidden; background: #211B12; border: 1px solid rgba(43,37,28,0.08); box-shadow: 0 40px 90px -34px rgba(70,52,18,0.55), 0 2px 6px rgba(120,95,40,0.06);">
+          <button onClick="{{ expand }}" title="Expand video" style="appearance: none; position: absolute; top: 14px; right: 14px; z-index: 4; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; border: 1px solid rgba(255,247,232,0.25); background: rgba(20,15,8,0.5); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center;" style-hover="background: rgba(20,15,8,0.82); border-color: rgba(194,162,78,0.7);">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#F4ECDB" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 H3 V8"></path><path d="M16 3 H21 V8"></path><path d="M21 16 V21 H16"></path><path d="M3 16 V21 H8"></path></svg>
+          </button>
+          <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}">
+            <iframe src="{{ videoUrl }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen="{{ true }}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"></iframe>
+          </sc-if>
+          <sc-if value="{{ noVideo }}" hint-placeholder-val="{{ true }}">
+            <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: radial-gradient(620px 360px at 50% 32%, #34291A, #1C160E);">
+              <div style="position: relative; display: flex; align-items: center; justify-content: center;">
+                <span style="position: absolute; width: 92px; height: 92px; border-radius: 50%; border: 2px solid rgba(194,162,78,0.5); animation: hcRingPulse 2.4s ease-out infinite;"></span>
+                <div style="width: 84px; height: 84px; border-radius: 50%; background: linear-gradient(150deg, #C2A24E, #8A6A22); display: flex; align-items: center; justify-content: center; box-shadow: 0 18px 40px -16px rgba(0,0,0,0.6);">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="#FFF7E8"><path d="M8 5.5 L19 12 L8 18.5 Z"></path></svg>
+                </div>
+              </div>
+              <div style="text-align: center;">
+                <div style="font-family: 'Playfair Display', serif; font-size: 22px; color: #F4ECDB;">Demo video coming soon</div>
+                <div style="margin-top: 6px; font-size: 13.5px; font-weight: 500; color: #B6A988;">The walkthrough will appear here once it's added.</div>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+
+          <!-- get to the point -->
+          <div style="display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid rgba(43,37,28,0.07); border-radius: 22px; padding: 26px 26px 22px; box-shadow: 0 22px 48px -28px rgba(120,95,40,0.4);">
+            <div style="font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2.6px; text-transform: uppercase; color: #A8822E;">Get to the point</div>
+            <h2 style="font-family: 'Playfair Display', serif; font-weight: 400; font-size: 23px; margin: 9px 0 0; color: #261F16; line-height: 1.2;">The 30-second version</h2>
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 18px;">
+              <div style="display: flex; gap: 11px; align-items: flex-start;">
+                <span style="flex: none; margin-top: 1px; width: 22px; height: 22px; border-radius: 7px; background: #F4ECD8; display: flex; align-items: center; justify-content: center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                <span style="font-size: 14px; font-weight: 500; line-height: 1.45; color: #4A4334;"><strong style="color: #2B251C; font-weight: 700;">Two tracks</strong> — transform how our team works, then sell the same tools to clients.</span>
+              </div>
+              <div style="display: flex; gap: 11px; align-items: flex-start;">
+                <span style="flex: none; margin-top: 1px; width: 22px; height: 22px; border-radius: 7px; background: #F4ECD8; display: flex; align-items: center; justify-content: center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                <span style="font-size: 14px; font-weight: 500; line-height: 1.45; color: #4A4334;"><strong style="color: #2B251C; font-weight: 700;">A new role</strong> — a proposed Chief Creative &amp; AI Officer to lead it.</span>
+              </div>
+              <div style="display: flex; gap: 11px; align-items: flex-start;">
+                <span style="flex: none; margin-top: 1px; width: 22px; height: 22px; border-radius: 7px; background: #F4ECD8; display: flex; align-items: center; justify-content: center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                <span style="font-size: 14px; font-weight: 500; line-height: 1.45; color: #4A4334;"><strong style="color: #2B251C; font-weight: 700;">A 3-year (or less) path</strong> — build &amp; prove, roll out to all clients, then scale for major growth.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- summary: two-track transformation -->
+        <section style="margin-top: 26px; background: #FFFFFF; border: 1px solid rgba(43,37,28,0.07); border-radius: 22px; padding: 32px 36px 32px; box-shadow: 0 22px 48px -28px rgba(120,95,40,0.4); animation: hcRise .6s ease .06s both;">
+          <div style="font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 2.6px; text-transform: uppercase; color: #A8822E;">Summary</div>
+          <h2 style="font-family: 'Playfair Display', serif; font-weight: 400; font-size: 27px; margin: 10px 0 0; color: #261F16;">A two-track transformation</h2>
+          <p style="margin: 14px 0 0; font-size: 16px; font-weight: 400; line-height: 1.7; color: #4A4334; max-width: 820px;">One platform, two ways it creates value — first by transforming how our own team works, then by turning those same tools into a subscription product for clients.</p>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 26px;">
+
+            <!-- Track 01 -->
+            <div style="position: relative; background: #FBF7EE; border: 1px solid rgba(43,37,28,0.07); border-radius: 18px; padding: 24px 24px 22px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="flex: none; width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(150deg, #C2A24E, #8A6A22); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 600; color: #FFF7E8; box-shadow: 0 8px 18px -8px rgba(120,90,30,0.6);">01</span>
+                <div>
+                  <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #A8822E;">Track One · Internal</div>
+                  <div style="font-family: 'Playfair Display', serif; font-size: 19px; color: #261F16; margin-top: 2px;">Transform how we work</div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 11px; margin-top: 16px;">
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <span style="flex: none; margin-top: 1px; width: 20px; height: 20px; border-radius: 6px; background: #F1E4C9; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                  <span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #5A5240;">Stop the team's subscriptions to traditional, pricey software and platforms.</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <span style="flex: none; margin-top: 1px; width: 20px; height: 20px; border-radius: 6px; background: #F1E4C9; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                  <span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #5A5240;">Shift focus to expanding our proprietary apps and tools — and using them as our work engine.</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <span style="flex: none; margin-top: 1px; width: 20px; height: 20px; border-radius: 6px; background: #F1E4C9; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                  <span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #5A5240;">A very lean, mean team — fewer hours, but far more output.</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <span style="flex: none; margin-top: 1px; width: 20px; height: 20px; border-radius: 6px; background: #F1E4C9; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                  <span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #5A5240;">No outsourcing needed.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Track 02 -->
+            <div style="position: relative; background: #FBF7EE; border: 1px solid rgba(43,37,28,0.07); border-radius: 18px; padding: 24px 24px 22px;">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="flex: none; width: 44px; height: 44px; border-radius: 12px; background: linear-gradient(150deg, #C2A24E, #8A6A22); display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; font-size: 19px; font-weight: 600; color: #FFF7E8; box-shadow: 0 8px 18px -8px rgba(120,90,30,0.6);">02</span>
+                <div>
+                  <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #A8822E;">Track Two · Client</div>
+                  <div style="font-family: 'Playfair Display', serif; font-size: 19px; color: #261F16; margin-top: 2px;">Give clients the tools</div>
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 11px; margin-top: 16px;">
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <span style="flex: none; margin-top: 1px; width: 20px; height: 20px; border-radius: 6px; background: #F1E4C9; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                  <span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #5A5240;">Give clients access to these same apps in a custom, branded version.</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <span style="flex: none; margin-top: 1px; width: 20px; height: 20px; border-radius: 6px; background: #F1E4C9; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                  <span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #5A5240;">They generate their own work using our apps on the "Powered by Havener" platform — while under contract with Havener.</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;">
+                  <span style="flex: none; margin-top: 1px; width: 20px; height: 20px; border-radius: 6px; background: #F1E4C9; display: flex; align-items: center; justify-content: center;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12 L10 18 L20 6"></path></svg></span>
+                  <span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #5A5240;">Subscription-based, with ongoing upgrades, new templates, and features to keep them engaged and wanting more.</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- team support — spans both tracks -->
+          <div style="margin-top: 20px; background: #FBF7EE; border: 1px solid rgba(43,37,28,0.07); border-radius: 18px; padding: 22px 26px;">
+            <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #A8822E; margin-bottom: 16px;">How the team supports it</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px 30px;">
+              <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <span style="flex: none; min-width: 78px; text-align: center; font-family: 'Oswald', sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #FFF7E8; background: linear-gradient(150deg, #C2A24E, #8A6A22); padding: 4px 10px; border-radius: 999px; margin-top: 1px;">Head of Content</span>
+                <span style="font-size: 13.5px; font-weight: 500; line-height: 1.5; color: #5A5240;">Build the backend voice and make sure it's accurate.</span>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: flex-start;">
+                <span style="flex: none; min-width: 78px; text-align: center; font-family: 'Oswald', sans-serif; font-size: 10.5px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: #FFF7E8; background: linear-gradient(150deg, #C2A24E, #8A6A22); padding: 4px 10px; border-radius: 999px; margin-top: 1px;">Head of Creative</span>
+                <span style="font-size: 13.5px; font-weight: 500; line-height: 1.5; color: #5A5240;">Evolve the platform and customize output for every new client — plus ongoing upgrades for current ones.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- key takeaways from implementation -->
+        <section style="margin-top: 40px; animation: hcRise .6s ease .1s both;">
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 22px;">
+            <span style="font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase; color: #26221B; white-space: nowrap;">Key Takeaways — Suggested New Role for Me</span>
+            <div style="flex: 1; height: 1px; background: rgba(43,37,28,0.12);"></div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;">
+            <div style="background: #FFFFFF; border: 1px solid rgba(43,37,28,0.07); border-radius: 18px; padding: 24px 22px; box-shadow: 0 18px 40px -26px rgba(120,95,40,0.4);">
+              <div style="font-family: 'Playfair Display', serif; font-size: 30px; color: #C2A24E; line-height: 1;">01</div>
+              <div style="margin-top: 12px; font-size: 15.5px; font-weight: 700; color: #2B251C;">Chief Creative &amp; AI Officer</div>
+              <div style="margin-top: 7px; font-size: 13.5px; font-weight: 400; line-height: 1.6; color: #7A7058;">Or a similar title — a new role, with compensation to match, leading the build, rollout, and ongoing evolution of the platform across both the internal team and the client product.</div>
+            </div>
+            <div style="background: #FFFFFF; border: 1px solid rgba(43,37,28,0.07); border-radius: 18px; padding: 24px 22px; box-shadow: 0 18px 40px -26px rgba(120,95,40,0.4);">
+              <div style="font-family: 'Playfair Display', serif; font-size: 30px; color: #C2A24E; line-height: 1;">02</div>
+              <div style="margin-top: 12px; font-size: 15.5px; font-weight: 700; color: #2B251C;">Growth-linked compensation</div>
+              <div style="margin-top: 7px; font-size: 13.5px; font-weight: 400; line-height: 1.6; color: #7A7058;">Compensation tracked to company performance and overall growth — aligned with the results the platform drives.</div>
+            </div>
+            <div style="background: #FFFFFF; border: 1px solid rgba(43,37,28,0.07); border-radius: 18px; padding: 24px 22px; box-shadow: 0 18px 40px -26px rgba(120,95,40,0.4);">
+              <div style="font-family: 'Playfair Display', serif; font-size: 30px; color: #C2A24E; line-height: 1;">03</div>
+              <div style="margin-top: 12px; font-size: 15.5px; font-weight: 700; color: #2B251C;">Commission on subscriptions</div>
+              <div style="margin-top: 7px; font-size: 13.5px; font-weight: 400; line-height: 1.6; color: #7A7058;">Upside through commission on the recurring client subscription revenue the platform generates as it scales.</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3-year plan -->
+        <section style="margin-top: 44px; animation: hcRise .6s ease .12s both;">
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 22px;">
+            <span style="font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase; color: #26221B; white-space: nowrap;">A 3-Year (or Less) Plan</span>
+            <div style="flex: 1; height: 1px; background: rgba(43,37,28,0.12);"></div>
+            <span style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 1.4px; text-transform: uppercase; color: #A79E88; white-space: nowrap;">Sample roadmap</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items: stretch;">
+
+            <!-- Year 1 -->
+            <div style="position: relative; display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid rgba(43,37,28,0.08); border-radius: 18px; padding: 24px 22px; box-shadow: 0 18px 40px -26px rgba(120,95,40,0.4);">
+              <div style="display: flex; align-items: center; gap: 11px;">
+                <span style="flex: none; width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(150deg, #C2A24E, #8A6A22); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #FFF7E8; box-shadow: 0 8px 18px -8px rgba(120,90,30,0.6);">Y1</span>
+                <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #A8822E;">Year One</div>
+              </div>
+              <div style="font-family: 'Playfair Display', serif; font-size: 20px; color: #261F16; margin-top: 16px;">Build &amp; prove</div>
+              <p style="margin: 9px 0 0; font-size: 13.5px; font-weight: 400; line-height: 1.6; color: #7A7058;">Build the core apps and test them with a handful of select clients — refining the workflow and proving the model.</p>
+            </div>
+
+            <!-- Year 2 -->
+            <div style="position: relative; display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid rgba(43,37,28,0.08); border-radius: 18px; padding: 24px 22px; box-shadow: 0 18px 40px -26px rgba(120,95,40,0.4);">
+              <div style="display: flex; align-items: center; gap: 11px;">
+                <span style="flex: none; width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(150deg, #C2A24E, #8A6A22); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #FFF7E8; box-shadow: 0 8px 18px -8px rgba(120,90,30,0.6);">Y2</span>
+                <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #A8822E;">Year Two</div>
+              </div>
+              <div style="font-family: 'Playfair Display', serif; font-size: 20px; color: #261F16; margin-top: 16px;">Roll out to all clients</div>
+              <p style="margin: 9px 0 0; font-size: 13.5px; font-weight: 400; line-height: 1.6; color: #7A7058;">Extend the platform to the full client base, standardize the custom formats, and turn subscriptions on across the board.</p>
+            </div>
+
+            <!-- Year 3 (featured) -->
+            <div style="position: relative; display: flex; flex-direction: column; background: linear-gradient(165deg, #2B2417, #1C160E); border: 1px solid rgba(194,162,78,0.4); border-radius: 18px; padding: 24px 22px; box-shadow: 0 30px 60px -30px rgba(70,52,18,0.7);">
+              <div style="display: flex; align-items: center; gap: 11px;">
+                <span style="flex: none; width: 40px; height: 40px; border-radius: 11px; background: linear-gradient(150deg, #E0C26A, #B08F35); display: flex; align-items: center; justify-content: center; font-family: 'Oswald', sans-serif; font-size: 13px; font-weight: 600; letter-spacing: 1px; color: #2B2417; box-shadow: 0 8px 18px -8px rgba(0,0,0,0.5);">Y3</span>
+                <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #D9B95E;">Year Three</div>
+              </div>
+              <div style="font-family: 'Playfair Display', serif; font-size: 20px; color: #F6EFDD; margin-top: 16px;">Scale for major growth</div>
+              <p style="margin: 9px 0 0; font-size: 13.5px; font-weight: 400; line-height: 1.6; color: #C8BC9E;">Push into mega-growth — a steady cadence of new features and templates, rising subscription volume, and meaningful recurring revenue.</p>
+              <div style="margin-top: 14px; font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 600; color: #D9B95E; letter-spacing: 1px;">$$$</div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ownership: what you own & what I own -->
+        <section style="margin-top: 44px; animation: hcRise .6s ease .14s both;">
+          <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 22px;">
+            <span style="font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600; letter-spacing: 2.4px; text-transform: uppercase; color: #26221B; white-space: nowrap;">What You Own &amp; What I Own</span>
+            <div style="flex: 1; height: 1px; background: rgba(43,37,28,0.12);"></div>
+            <span style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 500; letter-spacing: 1.4px; text-transform: uppercase; color: #A79E88; white-space: nowrap;">How this role works</span>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch;">
+
+            <!-- Havener owns -->
+            <div style="position: relative; display: flex; flex-direction: column; background: #FFFFFF; border: 1px solid rgba(43,37,28,0.08); border-radius: 20px; padding: 28px 26px; box-shadow: 0 18px 40px -26px rgba(120,95,40,0.4);">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="flex: none; width: 42px; height: 42px; border-radius: 12px; background: #F4ECD8; display: flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10 L12 4 L20 10"></path><path d="M5 10 V20 H19 V10"></path><line x1="10" y1="20" x2="10" y2="14"></line><line x1="14" y1="20" x2="14" y2="14"></line></svg></span>
+                <div>
+                  <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #A8822E;">You · Havener</div>
+                  <div style="font-family: 'Playfair Display', serif; font-size: 21px; color: #261F16; margin-top: 2px;">What Havener owns</div>
+                </div>
+              </div>
+              <div style="height: 1px; background: rgba(43,37,28,0.1); margin: 20px 0 18px;"></div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #4A4334;">The "Powered by Havener" platform, the custom apps we develop together, and all the underlying IP.</span></div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #4A4334;">The client relationships, contracts, and brand.</span></div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#A8822E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #4A4334;">Recurring subscription revenue, minus commission (TBD).</span></div>
+              </div>
+            </div>
+
+            <!-- I own (featured) -->
+            <div style="position: relative; display: flex; flex-direction: column; background: linear-gradient(165deg, #2B2417, #1C160E); border: 1px solid rgba(194,162,78,0.4); border-radius: 20px; padding: 28px 26px; box-shadow: 0 30px 60px -30px rgba(70,52,18,0.7);">
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="flex: none; width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(150deg, #E0C26A, #B08F35); display: flex; align-items: center; justify-content: center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2B2417" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M5 20 C5 15 19 15 19 20"></path></svg></span>
+                <div>
+                  <div style="font-family: 'Oswald', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #D9B95E;">Me · My role</div>
+                  <div style="font-family: 'Playfair Display', serif; font-size: 21px; color: #F6EFDD; margin-top: 2px;">What I own</div>
+                </div>
+              </div>
+              <div style="height: 1px; background: rgba(194,162,78,0.25); margin: 20px 0 18px;"></div>
+              <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D9B95E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #E8DFC8;">My extensive creative leadership background and intimate, firsthand knowledge of the Havener ecosystem uniquely position me to strategize and architect this new system.</span></div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D9B95E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #E8DFC8;">Develop the strategy for this whole structure.</span></div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D9B95E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #E8DFC8;">Build the tools on behalf of Havener.</span></div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D9B95E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #E8DFC8;">Maintain and evolve the apps over time.</span></div>
+                <div style="display: flex; gap: 10px; align-items: flex-start;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#D9B95E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="flex: none; margin-top: 2px;"><path d="M4 12 L10 18 L20 6"></path></svg><span style="font-size: 14px; font-weight: 500; line-height: 1.5; color: #E8DFC8;">Seek team support and input on the writing apps and integrations.</span></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </sc-if>
+
+  <!-- expanded video modal -->
+  <sc-if value="{{ expandedOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ collapse }}" style="position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 4vh 4vw; background: rgba(28,22,14,0.84); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); animation: hcFade .2s ease both;">
+      <div onClick="{{ stop }}" style="position: relative; width: min(1200px, 94vw); aspect-ratio: 16 / 9; max-height: 92vh; border-radius: 20px; overflow: hidden; background: #211B12; box-shadow: 0 60px 130px -30px rgba(0,0,0,0.7); animation: hcPop .3s cubic-bezier(.2,.85,.25,1) both;">
+        <button onClick="{{ collapse }}" title="Close" style="appearance: none; position: absolute; top: 14px; right: 14px; z-index: 5; width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,247,232,0.25); background: rgba(20,15,8,0.6); color: #F4ECDB; cursor: pointer; font-size: 20px; line-height: 1; display: flex; align-items: center; justify-content: center;" style-hover="background: rgba(20,15,8,0.85);">×</button>
+        <sc-if value="{{ hasVideo }}" hint-placeholder-val="{{ false }}">
+          <iframe src="{{ videoUrl }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowFullScreen="{{ true }}" style="position: absolute; inset: 0; width: 100%; height: 100%; border: 0;"></iframe>
+        </sc-if>
+        <sc-if value="{{ noVideo }}" hint-placeholder-val="{{ true }}">
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; background: radial-gradient(700px 420px at 50% 32%, #34291A, #1C160E);">
+            <div style="width: 84px; height: 84px; border-radius: 50%; background: linear-gradient(150deg, #C2A24E, #8A6A22); display: flex; align-items: center; justify-content: center; box-shadow: 0 18px 40px -16px rgba(0,0,0,0.6);"><svg width="34" height="34" viewBox="0 0 24 24" fill="#FFF7E8"><path d="M8 5.5 L19 12 L8 18.5 Z"></path></svg></div>
+            <div style="font-family: 'Playfair Display', serif; font-size: 24px; color: #F4ECDB;">Demo video coming soon</div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <footer style="position: relative; z-index: 2; text-align: center; padding: 0 0 26px; font-size: 12px; font-weight: 500; color: #A79E88; letter-spacing: 0.4px;">
+    Powered by Havener Sales &amp; Marketing · Confidential preview · Independently developed IP — not for distribution
+  </footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;$preview&quot;: { &quot;width&quot;: 1100, &quot;height&quot;: 1240 },
+  &quot;projectName&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;HCP OS: The AI Marketing Platform&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
+  &quot;allowedHashes&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;3e0897fb1cf8572c2341329f1264167b5916c4bb77bfa6ba32c6bad637644e0e, f2e64562c2f15bcfbd6f5bb2d4e799e1de119037926222f242b82306a6e66c9d&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Access&quot; },
+  &quot;requestEmail&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;hello@havenercapital.com&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Access&quot; },
+  &quot;videoUrl&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; },
+  &quot;gateBlurb&quot;: { &quot;editor&quot;: &quot;text&quot;, &quot;default&quot;: &quot;Enter your email to view the proof-of-concept summary and demo walkthrough.&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Content&quot; }
+}">
+class Component extends DCLogic {
+  state = { email: '', denied: false, sessionEmail: '', expanded: false, attempts: 0, lockUntil: 0 };
+
+  componentDidMount() {
+    this._esc = (e) => { if (e.key === 'Escape') this.setState({ expanded: false }); };
+    window.addEventListener('keydown', this._esc);
+    // Validate a remembered session by hash, not by reading a stored allowlist.
+    try {
+      const saved = localStorage.getItem('demoAccessEmail');
+      if (saved) {
+        const val = saved.trim().toLowerCase();
+        this._sha256(val).then((h) => {
+          if (this._hashes().includes(h)) this.setState({ sessionEmail: val });
+          else { try { localStorage.removeItem('demoAccessEmail'); } catch (e) {} }
+        });
+      }
+    } catch (e) {}
+  }
+
+  componentWillUnmount() {
+    if (this._esc) window.removeEventListener('keydown', this._esc);
+  }
+
+  // SHA-256 hashes of the allowed emails — the actual addresses never appear in the page source.
+  _hashes() {
+    const raw = this.props.allowedHashes || '3e0897fb1cf8572c2341329f1264167b5916c4bb77bfa6ba32c6bad637644e0e, f2e64562c2f15bcfbd6f5bb2d4e799e1de119037926222f242b82306a6e66c9d';
+    return raw.split(/[\s,;\n]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+  }
+
+  async _sha256(s) {
+    const buf = new TextEncoder().encode(s);
+    const hash = await crypto.subtle.digest('SHA-256', buf);
+    return [...new Uint8Array(hash)].map((x) => x.toString(16).padStart(2, '0')).join('');
+  }
+
+  async submit(e) {
+    e.preventDefault();
+    if (Date.now() < this.state.lockUntil) { this.setState({ denied: true }); return; }
+    const val = (this.state.email || '').trim().toLowerCase();
+    let ok = false;
+    try { ok = !!val && this._hashes().includes(await this._sha256(val)); } catch (err) { ok = false; }
+    if (ok) {
+      try { localStorage.setItem('demoAccessEmail', val); } catch (err) {}
+      this.setState({ sessionEmail: val, denied: false, attempts: 0, lockUntil: 0 });
+    } else {
+      const attempts = this.state.attempts + 1;
+      const lockUntil = attempts >= 5 ? Date.now() + 30000 : 0;
+      this.setState({ denied: true, attempts, lockUntil });
+    }
+  }
+
+  signOut() {
+    try { localStorage.removeItem('demoAccessEmail'); } catch (e) {}
+    this.setState({ sessionEmail: '', email: '', denied: false });
+  }
+
+  renderVals() {
+    const unlocked = !!this.state.sessionEmail;
+    const projectName = this.props.projectName || 'HCP OS: The AI Marketing Platform';
+    const videoUrl = (this.props.videoUrl || '').trim();
+    const requestEmail = (this.props.requestEmail || 'hello@havenercapital.com').trim();
+
+    return {
+      // state flags
+      unlocked,
+      locked: !unlocked,
+      denied: this.state.denied,
+      email: this.state.email,
+      sessionEmail: this.state.sessionEmail,
+      inputBorder: this.state.denied ? '#D08A52' : 'rgba(43,37,28,0.14)',
+
+      // handlers
+      onEmail: (e) => this.setState({ email: e.target.value, denied: false }),
+      submit: (e) => this.submit(e),
+      signOut: () => this.signOut(),
+
+      // video expand
+      expandedOpen: this.state.expanded,
+      expand: () => this.setState({ expanded: true }),
+      collapse: () => this.setState({ expanded: false }),
+      stop: (e) => e.stopPropagation(),
+
+      // gate copy
+      projectName,
+      gateBlurb: this.props.gateBlurb || 'Enter your email to view the proof-of-concept summary and demo walkthrough.',
+      deniedMsg: (Date.now() < this.state.lockUntil)
+        ? 'Too many attempts — please wait a moment and try again.'
+        : (this.props.deniedMsg || "That email isn't on the invite list for this preview."),
+      requestHref: 'mailto:' + requestEmail + '?subject=' + encodeURIComponent('Access request — ' + projectName),
+
+      // video
+      hasVideo: !!videoUrl,
+      noVideo: !videoUrl,
+      videoUrl,
+
+      // summary
+      summaryHeadline: this.props.summaryHeadline || 'Add your summary headline here',
+      summaryPara1: this.props.summaryPara1 || 'Use this space to introduce the platform: what problem it solves, who it is for, and what the demo shows. Click any text to edit it directly.',
+      summaryPara2: this.props.summaryPara2 || 'Add a second paragraph for context on the approach, the technology, or what reviewers should look for in the walkthrough above.',
+      hi1Title: this.props.hi1Title || 'What it does',
+      hi1Sub: this.props.hi1Sub || 'One line on the core capability.',
+      hi2Title: this.props.hi2Title || 'Why it matters',
+      hi2Sub: this.props.hi2Sub || 'The outcome or impact.',
+      hi3Title: this.props.hi3Title || 'Where it goes',
+      hi3Sub: this.props.hi3Sub || 'What is next after the POC.',
+    };
+  }
+}
+</script>
+</body>
+</html>
